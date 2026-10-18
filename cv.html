@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leonardo Mites | CV Virtual Interactivo (HCI - EPN)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        epn: {
+                            blue: '#0B192C',
+                            accent: '#008DDA',
+                            light: '#F1F6F9',
+                            card: '#1E293B'
+                        }
+                    },
+                    animation: {
+                        'pulse-glow': 'pulseGlow 2s infinite',
+                    },
+                    keyframes: {
+                        pulseGlow: {
+                            '0%, 100%': { boxShadow: '0 0 15px rgba(0, 141, 218, 0.4)' },
+                            '50%': { boxShadow: '0 0 25px rgba(0, 141, 218, 0.8)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .heuristic-highlight {
+            outline: 3px solid #008DDA !important;
+            outline-offset: 4px;
+            animation: highlightPulse 1.5s infinite alternate;
+        }
+        @keyframes highlightPulse {
+            from { outline-color: #008DDA; }
+            to { outline-color: #38BDF8; }
+        }
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ESTILOS EXCLUSIVOS PARA IMPRESIÓN / PDF (H3 & Formato Físico) */
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+                font-size: 12pt;
+            }
+            header, .fixed, #heuristic-panel, #h-filter-section, button, kbd {
+                display: none !important;
+            }
+            main {
+                max-width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .project-card, section > div {
+                border: 1px solid #cbd5e1 !important;
+                break-inside: avoid;
+                box-shadow: none !important;
+                background: white !important;
+                color: black !important;
+            }
+            .print-header-only {
+                display: block !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen font-sans transition-colors duration-300 pb-48">
+
+    <!-- Indicador de Lectura (H1: Visibilidad del estado del sistema) -->
+    <div id="read-progress" class="fixed top-0 left-0 h-1 bg-gradient-to-r from-cyan-500 to-blue-600 z-50 transition-all duration-150 w-0"></div>
+
+    <!-- Barra de Navegación Principal (H4: Consistencia y Estándares) -->
+    <header class="sticky top-0 z-40 backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <span class="w-3 h-3 rounded-full bg-emerald-500 animate-ping"></span>
+                <span class="font-bold text-lg tracking-tight bg-gradient-to-r from-cyan-600 to-blue-700 dark:from-cyan-400 dark:to-blue-500 bg-clip-text text-transparent">
+                    Leonardo Mites
+                </span>
+                <span class="hidden sm:inline-block px-2.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300">
+                    EPN • Sistemas
+                </span>
+            </div>
+
+            <!-- Controles Globales (H7: Flexibilidad y Eficiencia) -->
+            <div class="flex items-center space-x-3">
+                <!-- Buscador Rápido con Atajo por Teclado -->
+                <div class="relative hidden md:block" id="h-search-box">
+                    <input type="text" id="quick-search" placeholder="Buscar tecnología... (/)" 
+                           class="w-56 pl-9 pr-8 py-1.5 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                    <kbd class="absolute right-2.5 top-2 text-[10px] bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded text-slate-500 dark:text-slate-400">Ctrl+K</kbd>
+                </div>
+
+                <!-- Toggle Modo Oscuro -->
+                <button id="theme-toggle" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition" title="Cambiar Tema (H7)">
+                    <i class="fa-solid fa-moon dark:hidden"></i>
+                    <i class="fa-solid fa-sun hidden dark:block text-amber-400"></i>
+                </button>
+
+                <!-- Botón Imprimir CV Físico (H3: Control y Libertad) -->
+                <button onclick="window.print()" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-white dark:bg-slate-200 dark:text-slate-900 dark:hover:bg-white transition flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-file-pdf"></i>
+                    <span class="hidden sm:inline">Guardar PDF</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenido Principal: Bento Grid UI (H8: Estética y Diseño Minimalista) -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
+        
+        <!-- Hero & Datos Personales Bento Grid -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Tarjeta Principal con Perfil y Foto -->
+            <div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl p-6 sm:p-8 border border-slate-200/80 dark:border-slate-800 shadow-sm relative overflow-hidden flex flex-col md:flex-row items-center gap-6 reveal">
+                <div class="relative group shrink-0">
+                    <!-- FOTO DE PERFIL (Asegúrate de tener image_692785.jpg en la misma carpeta) -->
+                    <img src="image_692785.jpg" alt="Leonardo Mites" 
+                         onerror="this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80'" 
+                         class="w-36 h-36 sm:w-40 sm:h-40 rounded-2xl object-cover border-2 border-cyan-500/50 shadow-md transition-transform duration-300 group-hover:scale-105">
+                    <div class="absolute -bottom-2 -right-2 bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full border-2 border-white dark:border-slate-900 shadow">
+                        ACTIVO
+                    </div>
+                </div>
+                
+                <div class="space-y-3 text-center md:text-left">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-50 dark:bg-cyan-950/50 text-cyan-700 dark:text-cyan-300 text-xs font-semibold">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                        <span>Escuela Politécnica Nacional (EPN)</span>
+                    </div>
+                    <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Leonardo Mites</h1>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed max-w-xl">
+                        Estudiante de **Ingeniería en Sistemas** (a 2 años de graduación, proyección 2028). Apasionado por la Interacción Humano-Computadora (HCI), sistemas distribuidos e investigación aplicada en software.
+                    </p>
+                    
+                    <div class="pt-2 flex flex-wrap justify-center md:justify-start gap-2 text-xs text-slate-500 dark:text-slate-400">
+                        <span class="bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-md"><i class="fa-solid fa-location-dot mr-1 text-cyan-500"></i>Quito, Ecuador</span>
+                        <span class="bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-md"><i class="fa-solid fa-code mr-1 text-cyan-500"></i>Semestre VI</span>
+                        <span class="bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-md"><i class="fa-solid fa-envelope mr-1 text-cyan-500"></i>leonardo.mites@epn.edu.ec</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estado Académico / Métrica Rápida -->
+            <div class="bg-gradient-to-br from-cyan-900 to-blue-950 text-white rounded-2xl p-6 border border-cyan-800/50 shadow-sm flex flex-col justify-between reveal">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-xs uppercase tracking-widest font-bold text-cyan-300">Progreso Académico</span>
+                        <i class="fa-solid fa-chart-line text-cyan-400 text-xl"></i>
+                    </div>
+                    <div class="text-4xl font-black mb-1">60%</div>
+                    <p class="text-xs text-cyan-200">Camino a Título Profesional (2028)</p>
+                </div>
+
+                <div class="mt-6 pt-4 border-t border-cyan-800/60 space-y-2 text-xs">
+                    <div class="flex justify-between text-cyan-100">
+                        <span>Investigación Activa</span>
+                        <span class="font-bold text-cyan-300">TechData EPN</span>
+                    </div>
+                    <div class="flex justify-between text-cyan-100">
+                        <span>Línea de Enfoque</span>
+                        <span class="font-bold text-cyan-300">HCI & UX Metrics</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Filtros interactivos y Búsqueda (H6: Reconocer antes que recordar & H3: Control y Libertad) -->
+        <section class="bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-wrap items-center justify-between gap-4 reveal" id="h-filter-section">
+            <div class="flex items-center gap-2">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-400 mr-2">Filtrar por:</span>
+                <button onclick="filterCategory('all')" class="filter-btn active px-3 py-1.5 rounded-lg text-xs font-semibold bg-cyan-500 text-white transition">Todos</button>
+                <button onclick="filterCategory('investigación')" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition">Investigación</button>
+                <button onclick="filterCategory('desarrollo')" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition">Desarrollo</button>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <span id="result-counter" class="text-xs font-medium text-slate-500 dark:text-slate-400">Mostrando 4 elementos</span>
+                <button onclick="resetFilters()" class="text-xs text-cyan-600 dark:text-cyan-400 hover:underline flex items-center gap-1 font-semibold">
+                    <i class="fa-solid fa-rotate-left"></i> Restablecer (H3)
+                </button>
+            </div>
+        </section>
+
+        <!-- Sección de Experiencia y Proyectos (Bento Grid) -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-6" id="projects-grid">
+            
+            <!-- Item 1: TechData -->
+            <div class="project-card item-investigación bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-300 reveal space-y-3">
+                <div class="flex justify-between items-start">
+                    <span class="px-2.5 py-1 text-[10px] font-bold uppercase rounded bg-cyan-100 text-cyan-800 dark:bg-cyan-950 dark:text-cyan-300">Investigación</span>
+                    <span class="text-xs text-slate-400 font-mono">2025 - Presente</span>
+                </div>
+                <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100">Investigador Junior en IA & Vision</h3>
+                <p class="text-xs font-semibold text-cyan-600 dark:text-cyan-400">TechData EPN Lab</p>
+                <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                    Desarrollo de modelos predictivos de análisis de usabilidad utilizando bibliotecas de Inteligencia Artificial para la evaluación automatizada de interfaces web.
+                </p>
+                <div class="flex flex-wrap gap-1.5 pt-2">
+                    <span class="px-2 py-0.5 text-[10px] bg-slate-100 dark:bg-slate-800 rounded font-mono">Python</span>
+                    <span class="px-2 py-0.5 text-[10px] bg-slate-100 dark:bg-slate-800 rounded font-mono">PyTorch</span>
+                    <span class="px-2 py-0.5 text-[10px] bg-slate-100 dark:bg-slate-800 rounded font-mono">OpenCV</span>
+                </div>
+            </div>
+
+            <!-- Item 2: Empresa XY -->
+            <div class="project-card item-investigación bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-300 reveal space-y-3">
+                <div class="flex justify-between items-start">
+                    <span class="px-2.5 py-1 text-[10px] font-bold uppercase rounded bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300">Investigación HCI</span>
+                    <span class="text-xs text-slate-400 font-mono">2024 - 2025</span>
+                </div>
+                <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100">Asistente de Usabilidad & HCI</h3>
+                <p class="text-xs font-semibold text-indigo-600 dark:text-indigo-400">Empresa XY Research Lab</p>
+                <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                    Ejecución de pruebas A/B, mapeo de métricas de eye-tracking y evaluación de accesibilidad basándome en las 10 heurísticas de Jakob Nielsen.
+                </p>
+                <div class="flex flex-wrap gap-1.5 pt-2">
+                    <span class="px-2 py-0.5 text-[10px] bg-slate-100 dark:bg-slate-800 rounded font-mono">HCI Metrics</span>
+                    <span class="px-2 py-0.5 text-[10px] bg-slate-100 dark:bg-slate-800 rounded font-mono">User Testing</span>
+                    <span class="px-2 py-0.5 text-[10px] bg-slate-100 dark:bg-slate-800 rounded font-mono">Figma</span>
+                </div>
+            </div>
+
+            <!-- Item 3: Sistema EPN -->
+            <div class="project-card item-desarrollo bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-300 reveal space-y-3">
+                <div class="flex justify-between items-start">
+                    <span class="px-2.5 py-1 text-[10px] font-bold uppercase rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">Desarrollo Web</span>
+                    <span class="text-xs text-slate-400 font-mono">2026</span>
+                </div>
+                <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100">Portal Académico Interactivo EPN</h3>
+                <p class="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Proyecto Universitario</p>
+                <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                    Aplicación web frontend responsiva para la consulta eficiente de materias y horarios con retroalimentación en tiempo real para el estudiante.
+                </p>
+                <div class="flex flex-wrap gap-1.5 pt-2">
+                    <span class="px-2 py-0.5 text-[10px] bg-slate-100 dark:bg-slate-800 rounded font-mono">JavaScript</span>
+                    <span class="px-2 py-0.5 text-[10px] bg-slate-100 dark:bg-slate-800 rounded font-mono">Tailwind CSS</span>
+                    <span class="px-2 py-0.5 text-[10px] bg-slate-100 dark:bg-slate-800 rounded font-mono">HTML5</span>
+                </div>
+            </div>
+
+            <!-- Item 4: Dashboard -->
+            <div class="project-card item-desarrollo bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-300 reveal space-y-3">
+                <div class="flex justify-between items-start">
+                    <span class="px-2.5 py-1 text-[10px] font-bold uppercase rounded bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">Full Stack</span>
+                    <span class="text-xs text-slate-400 font-mono">2025</span>
+                </div>
+                <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100">Dashboard de Monitoreo distribuido</h3>
+                <p class="text-xs font-semibold text-amber-600 dark:text-amber-400">Proyecto Sistemas</p>
+                <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                    Panel de control interactivo para visualizar el rendimiento de servidores con alertas de error y prevención de fallos críticos.
+                </p>
+                <div class="flex flex-wrap gap-1.5 pt-2">
+                    <span class="px-2 py-0.5 text-[10px] bg-slate-100 dark:bg-slate-800 rounded font-mono">React</span>
+                    <span class="px-2 py-0.5 text-[10px] bg-slate-100 dark:bg-slate-800 rounded font-mono">Node.js</span>
+                    <span class="px-2 py-0.5 text-[10px] bg-slate-100 dark:bg-slate-800 rounded font-mono">Docker</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Estado Vacío en Búsqueda (H9: Recuperarse de errores) -->
+        <div id="empty-state" class="hidden text-center py-12 bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-slate-300 dark:border-slate-800">
+            <i class="fa-solid fa-circle-exclamation text-4xl text-amber-500 mb-3 animate-bounce"></i>
+            <h3 class="text-lg font-bold">No se encontraron coincidencia de búsqueda</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
+                Intenta buscar otra tecnología o restablece los filtros para ver la lista completa.
+            </p>
+            <button onclick="resetFilters()" class="mt-4 px-4 py-2 text-xs font-bold rounded-lg bg-cyan-500 text-white hover:bg-cyan-600 transition">
+                Restablecer Todo
+            </button>
+        </div>
+    </main>
+
+    <!-- Botón Flotante de WhatsApp (No Operativo - Demo HCI) -->
+    <div class="fixed bottom-20 right-6 z-40 group">
+        <div class="hidden group-hover:flex absolute right-0 bottom-16 bg-slate-900 text-white text-xs p-3 rounded-xl shadow-xl w-60 border border-slate-700 flex-col gap-1 transition-all">
+            <span class="font-bold text-emerald-400 flex items-center gap-1">
+                <i class="fa-brands fa-whatsapp"></i> WhatsApp Directo
+            </span>
+            <span class="text-[11px] text-slate-300">Botón en modo demostración para la clase de HCI (no funcional en entorno estático).</span>
+        </div>
+
+        <button onclick="toggleWhatsappNotice()" class="w-14 h-14 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white shadow-lg flex items-center justify-center text-2xl transition-all duration-300 hover:scale-110 animate-pulse-glow relative">
+            <i class="fa-brands fa-whatsapp"></i>
+            <span class="absolute -top-1 -right-1 bg-amber-400 text-slate-950 font-bold text-[9px] px-1.5 py-0.5 rounded-full uppercase border-2 border-white">Demo</span>
+        </button>
+    </div>
+
+    <!-- INSPECTOR DE HEURÍSTICAS DE NIELSEN (Rediseñado limpio y colapsable) -->
+    <div class="fixed bottom-0 left-0 right-0 bg-slate-900 dark:bg-slate-950 border-t border-slate-700 dark:border-slate-800 text-white z-50 shadow-2xl transition-all duration-300" id="heuristic-panel">
+        <div class="max-w-7xl mx-auto px-4 py-3">
+            <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                    <span class="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 text-xs font-mono font-bold">HCI Evaluation Panel</span>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-300">Inspector de las 10 Heurísticas de Nielsen</h4>
+                </div>
+                <button onclick="toggleHeuristicPanel()" class="text-xs bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded text-slate-300 transition flex items-center gap-1">
+                    <span id="panel-toggle-text">Minimizar</span>
+                    <i class="fa-solid fa-chevron-down" id="panel-icon"></i>
+                </button>
+            </div>
+
+            <div id="heuristic-content" class="space-y-2 transition-all duration-300">
+                <!-- Badges de Heurísticas Seleccionables -->
+                <div class="flex flex-wrap gap-1.5 overflow-x-auto pb-1">
+                    <button onclick="highlightHeuristic(1, '#read-progress')" class="h-btn px-2.5 py-1 rounded bg-slate-800 hover:bg-cyan-600 text-[11px] font-medium border border-slate-700 transition">H1: Visibilidad Estado</button>
+                    <button onclick="highlightHeuristic(2, '#projects-grid')" class="h-btn px-2.5 py-1 rounded bg-slate-800 hover:bg-cyan-600 text-[11px] font-medium border border-slate-700 transition">H2: Mundo Real</button>
+                    <button onclick="highlightHeuristic(3, '#h-filter-section')" class="h-btn px-2.5 py-1 rounded bg-slate-800 hover:bg-cyan-600 text-[11px] font-medium border border-slate-700 transition">H3: Libertad de Usuario</button>
+                    <button onclick="highlightHeuristic(4, 'header')" class="h-btn px-2.5 py-1 rounded bg-slate-800 hover:bg-cyan-600 text-[11px] font-medium border border-slate-700 transition">H4: Consistencia</button>
+                    <button onclick="highlightHeuristic(5, '#h-search-box')" class="h-btn px-2.5 py-1 rounded bg-slate-800 hover:bg-cyan-600 text-[11px] font-medium border border-slate-700 transition">H5: Prevenir Errores</button>
+                    <button onclick="highlightHeuristic(6, '#h-filter-section')" class="h-btn px-2.5 py-1 rounded bg-slate-800 hover:bg-cyan-600 text-[11px] font-medium border border-slate-700 transition">H6: Reconocer</button>
+                    <button onclick="highlightHeuristic(7, '#theme-toggle')" class="h-btn px-2.5 py-1 rounded bg-slate-800 hover:bg-cyan-600 text-[11px] font-medium border border-slate-700 transition">H7: Eficiencia</button>
+                    <button onclick="highlightHeuristic(8, 'main')" class="h-btn px-2.5 py-1 rounded bg-slate-800 hover:bg-cyan-600 text-[11px] font-medium border border-slate-700 transition">H8: Minimalista</button>
+                    <button onclick="highlightHeuristic(9, '#empty-state')" class="h-btn px-2.5 py-1 rounded bg-slate-800 hover:bg-cyan-600 text-[11px] font-medium border border-slate-700 transition">H9: Recuperación</button>
+                    <button onclick="highlightHeuristic(10, '#heuristic-panel')" class="h-btn px-2.5 py-1 rounded bg-slate-800 hover:bg-cyan-600 text-[11px] font-medium border border-slate-700 transition">H10: Ayuda y Guía</button>
+                </div>
+                
+                <p id="heuristic-desc" class="text-[11px] text-cyan-300 italic">
+                    Haz clic en cualquier heurística superior para resaltar en pantalla el componente UI que cumple la regla para tu exposición.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts Interactivos -->
+    <script>
+        // Toggle Tema Oscuro / Claro
+        const themeToggle = document.getElementById('theme-toggle');
+        themeToggle.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+        });
+
+        // Barra de Progreso de Lectura en Scroll (H1)
+        window.addEventListener('scroll', () => {
+            const winScroll = document.documentElement.scrollTop || document.body.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById('read-progress').style.width = scrolled + '%';
+        });
+
+        // Revelado Suave en Scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // Filtrado Interactivo
+        function filterCategory(cat) {
+            const cards = document.querySelectorAll('.project-card');
+            let count = 0;
+
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-cyan-500', 'text-white');
+                btn.classList.add('bg-slate-100', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-300');
+            });
+            event.target.classList.remove('bg-slate-100', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-300');
+            event.target.classList.add('bg-cyan-500', 'text-white');
+
+            cards.forEach(card => {
+                if (cat === 'all' || card.classList.contains('item-' + cat)) {
+                    card.style.display = 'block';
+                    count++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            document.getElementById('result-counter').innerText = `Mostrando ${count} elementos`;
+            document.getElementById('empty-state').style.display = count === 0 ? 'block' : 'none';
+        }
+
+        function resetFilters() {
+            document.getElementById('quick-search').value = '';
+            filterCategory('all');
+        }
+
+        // Buscador Rápido (H5 & H7)
+        const searchInput = document.getElementById('quick-search');
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const cards = document.querySelectorAll('.project-card');
+            let count = 0;
+
+            cards.forEach(card => {
+                const text = card.innerText.toLowerCase();
+                if (text.includes(query)) {
+                    card.style.display = 'block';
+                    count++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            document.getElementById('result-counter').innerText = `Mostrando ${count} elementos`;
+            document.getElementById('empty-state').style.display = count === 0 ? 'block' : 'none';
+        });
+
+        // Atajo Teclado 'Ctrl+K' o '/' para buscar
+        window.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey && e.key === 'k') || e.key === '/') {
+                e.preventDefault();
+                searchInput.focus();
+            }
+        });
+
+        // Inspector de Heurísticas
+        const descriptions = {
+            1: "H1: Visibilidad del estado del sistema. La barra azul superior muestra exactamente cuánto has avanzado leyendo la página.",
+            2: "H2: Correspondencia con el mundo real. Las tarjetas usan iconografía universal y metáforas conocidas como badges y etiquetas tecnológicas.",
+            3: "H3: Control y libertad. El botón de restablecer limpia cualquier filtro instantáneamente sin recargar la página.",
+            4: "H4: Consistencia y estándares. Navegación superior con diseño coherente en colores, tipografías y comportamiento de botones.",
+            5: "H5: Prevención de errores. El buscador valida en tiempo real sin requerir envíos de formularios vacíos.",
+            6: "H6: Reconocer antes que recordar. Los filtros de botones por categoría evitan que el usuario memorice los nombres de los proyectos.",
+            7: "H7: Eficiencia de uso. Incluye atajos por teclado (Ctrl+K) y selector de modo oscuro instantáneo.",
+            8: "H8: Diseño minimalista. Distribución limpia mediante cuadrícula Bento Grid que jerarquiza la información importante.",
+            9: "H9: Recuperación de errores. Si buscas algo inexistente, se activa un estado vacío con botón claro para solucionarlo.",
+            10: "H10: Ayuda y documentación. Este mismo panel sirve de guía interactiva para auditorías y presentaciones."
+        };
+
+        function highlightHeuristic(num, selector) {
+            document.querySelectorAll('.heuristic-highlight').forEach(el => el.classList.remove('heuristic-highlight'));
+            const target = document.querySelector(selector);
+            if (target) {
+                target.classList.add('heuristic-highlight');
+                target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            document.getElementById('heuristic-desc').innerText = descriptions[num];
+        }
+
+        // Colapsar / Minimizar Panel Heurístico
+        let panelVisible = true;
+        function toggleHeuristicPanel() {
+            panelVisible = !panelVisible;
+            const content = document.getElementById('heuristic-content');
+            const icon = document.getElementById('panel-icon');
+            const text = document.getElementById('panel-toggle-text');
+            
+            if (panelVisible) {
+                content.style.display = 'block';
+                icon.className = 'fa-solid fa-chevron-down';
+                text.innerText = 'Minimizar';
+            } else {
+                content.style.display = 'none';
+                icon.className = 'fa-solid fa-chevron-up';
+                text.innerText = 'Expandir';
+            }
+        }
+
+        function toggleWhatsappNotice() {
+            alert("Aviso HCI: El botón de WhatsApp está configurado en modo DEMO para evaluación en clase.");
+        }
+    </script>
+</body>
+</html>
